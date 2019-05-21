@@ -22,7 +22,7 @@ import android.support.v4.app.ActivityCompat;
 public class GPSTrackerSingleton implements LocationListener{
 
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 1; // 1 meters
-    private static final long MIN_TIME_BW_UPDATES = 1000; // 1 seconds
+    private static final long MIN_TIME_BW_UPDATES = 500; // 0.5 seconds
     private static final long MIN_SPEED = 5; // 5 km/h => to avoid non accurate speed
 
     //singleton instante
@@ -104,11 +104,9 @@ public class GPSTrackerSingleton implements LocationListener{
                     //compute distance from last location
                     double distance = mLastlocation.distanceTo(location);
 
-                    //add distance if > accuracy
-                    if (location.getAccuracy() < distance) {
-                        mGPSData.addDistance(distance);
-                        mLastlocation.set(location);
-                    }
+                    //update distance
+                    mGPSData.addDistance(distance);
+                    mLastlocation.set(location);
                 }
 
                 //update current speed
@@ -125,10 +123,8 @@ public class GPSTrackerSingleton implements LocationListener{
 
             //add distance
             double distance = mLastlocation.distanceTo(location);
-            if (location.getAccuracy() < distance) {
-                mGPSData.addDistance(distance);
-                mLastlocation.set(location);
-            }
+            mGPSData.addDistance(distance);
+            mLastlocation.set(location);
 
             //if speed too low => no driving anymore
             if (speedInKmH < MIN_SPEED) {
