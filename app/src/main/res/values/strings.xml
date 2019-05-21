@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">UbiGPSApp</string>
+    <string name="title_location_permission">Permission</string>
+    <string name="text_location_permission">Veuillez autoriser l\'application à utiliser votre GPS</string>
+    <string name="ok">OK</string>
+    <string name="currentSpeedTitle">Votre vitesse</string>
+    <string name="averageSpeedTitle">Vitesse moyenne</string>
+
+</resources>
