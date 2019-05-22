@@ -19,6 +19,7 @@ public class SpeedPresenter implements SpeedContract.Presenter, OnLocationChange
 
     private static final long MIN_SPEED = 10; // 10 km/h => to avoid non accurate speed
 
+    private boolean mStarted = false;
     private boolean mDriving = false;
     private long mStartTS;
     private long mStopTS;
@@ -35,6 +36,7 @@ public class SpeedPresenter implements SpeedContract.Presenter, OnLocationChange
         mGPSTracker.registerListener(this);
         mGPSTracker.startCapture(mSpeedView.getContext());
 
+        mStarted = true;
         mDriving = false;
         mStartTS = 0;
         mStopTS = 0;
@@ -44,17 +46,21 @@ public class SpeedPresenter implements SpeedContract.Presenter, OnLocationChange
 
     @Override
     public void stop() {
-        //stop GPS to capture
-        mGPSTracker.stopCapture();
+        if(mStarted) {
+            mStarted = false;
+            
+            //stop GPS to capture
+            mGPSTracker.stopCapture();
 
-        //unregister listener
-        mGPSTracker.unregisterListener(this);
+            //unregister listener
+            mGPSTracker.unregisterListener(this);
 
-        //reset GPS tracker for next capture
-        mGPSTracker.resetCapture();
+            //reset GPS tracker for next capture
+            mGPSTracker.resetCapture();
 
-        //update view
-        mSpeedView.displaySpeed(0);
+            //update view
+            mSpeedView.displaySpeed(0);
+        }
     }
 
     @Override
