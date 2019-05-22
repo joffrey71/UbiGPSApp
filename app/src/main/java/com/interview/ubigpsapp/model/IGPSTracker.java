@@ -9,8 +9,6 @@
 
 package com.interview.ubigpsapp.model;
 
-import android.content.Context;
-
 public interface IGPSTracker {
 
     //Register listener
@@ -25,14 +23,8 @@ public interface IGPSTracker {
     //Set distance
     void setDistance(double speed);
 
-    //Get distance
-    double getDistance();
-
-    //Get speed
-    double getSpeed();
-
     //Start capture
-    void startCapture(Context context);
+    void startCapture();
 
     //Stop capture
     void stopCapture();

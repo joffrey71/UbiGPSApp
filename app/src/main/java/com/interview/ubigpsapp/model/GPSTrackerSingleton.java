@@ -21,10 +21,13 @@ import android.support.v4.app.ActivityCompat;
 
 public class GPSTrackerSingleton implements IGPSTracker, LocationListener {
 
-    private static final long MIN_TIME_BW_UPDATES = 250; // 0.5 seconds
+    private static final long MIN_TIME_BW_UPDATES = 250; // 0.25 seconds
 
     //singleton instance
     private static volatile GPSTrackerSingleton mInstance = null;
+
+    //app context
+    private Context mAppContext;
 
     //location change listener
     private OnLocationChangeListener mOnLocationChangeListener;
@@ -51,24 +54,31 @@ public class GPSTrackerSingleton implements IGPSTracker, LocationListener {
     private GPSTrackerSingleton() {
     }
 
+    public void initContext(Context context){
+        mAppContext = context;
+    }
+
     @Override
     //start capture location
-    public void startCapture(Context context) {
-        //check permissions first
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)
-                        == PackageManager.PERMISSION_GRANTED) {
-            //request location update
-            mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-            mLocationManager.requestLocationUpdates(
-                    LocationManager.GPS_PROVIDER,
-                    MIN_TIME_BW_UPDATES,
-                    0,
-                    this);
+    public void startCapture() {
+        //check context not null
+        if (mAppContext != null) {
+            //check permissions first
+            if (ActivityCompat.checkSelfPermission(mAppContext, Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(mAppContext, Manifest.permission.ACCESS_COARSE_LOCATION)
+                            == PackageManager.PERMISSION_GRANTED) {
+                //request location update
+                mLocationManager = (LocationManager) mAppContext.getSystemService(Context.LOCATION_SERVICE);
+                mLocationManager.requestLocationUpdates(
+                        LocationManager.GPS_PROVIDER,
+                        MIN_TIME_BW_UPDATES,
+                        0,
+                        this);
 
-            if(mOnLocationChangeListener != null)
-                mOnLocationChangeListener.startCapturing();
+                if (mOnLocationChangeListener != null)
+                    mOnLocationChangeListener.startCapturing();
+            }
         }
     }
 
@@ -96,22 +106,6 @@ public class GPSTrackerSingleton implements IGPSTracker, LocationListener {
         if(mOnLocationChangeListener != null) {
             mOnLocationChangeListener.distanceChanged(distance);
         }
-    }
-
-    @Override
-    public double getDistance() {
-        if(mGPSData != null)
-            return mGPSData.getLastDistance();
-        else
-            return 0;
-    }
-
-    @Override
-    public double getSpeed() {
-        if(mGPSData != null)
-            return mGPSData.getSpeed();
-        else
-            return 0;
     }
 
     @Override

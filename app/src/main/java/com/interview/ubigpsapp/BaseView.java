@@ -7,9 +7,5 @@
 
 package com.interview.ubigpsapp;
 
-import android.content.Context;
-
-public interface BaseView<T> {
-    //Return context
-    Context getContext();
+interface BaseView<T> {
 }

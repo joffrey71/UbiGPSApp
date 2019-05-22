@@ -12,6 +12,7 @@ import android.support.annotation.NonNull;
 import com.interview.ubigpsapp.SpeedContract;
 import com.interview.ubigpsapp.model.IGPSTracker;
 import com.interview.ubigpsapp.model.OnLocationChangeListener;
+import com.interview.ubigpsapp.utils.Utils;
 
 public class SpeedPresenter implements SpeedContract.Presenter, OnLocationChangeListener {
     //store view
@@ -35,7 +36,7 @@ public class SpeedPresenter implements SpeedContract.Presenter, OnLocationChange
     @Override
     public void start() {
         mGPSTracker.registerListener(this);
-        mGPSTracker.startCapture(mSpeedView.getContext());
+        mGPSTracker.startCapture();
 
         mStarted = true;
         mDriving = false;
@@ -47,7 +48,7 @@ public class SpeedPresenter implements SpeedContract.Presenter, OnLocationChange
 
     @Override
     public void stop() {
-        if(mStarted) {
+        if (mStarted) {
             mStarted = false;
 
             //stop GPS to capture
@@ -66,19 +67,16 @@ public class SpeedPresenter implements SpeedContract.Presenter, OnLocationChange
 
     @Override
     public void startCapturing() {
-
     }
 
     @Override
     public void stopCapturing() {
-
     }
 
     @Override
     public void speedChanged(double speed) {
         //Check if driving
-        if(!mDriving)
-        {
+        if (!mDriving) {
             //Check if speed > threshold
             if (speed >= MIN_SPEED) {
                 mDriving = true;
@@ -91,10 +89,9 @@ public class SpeedPresenter implements SpeedContract.Presenter, OnLocationChange
             }
         }
         //if driving
-        else
-        {
+        else {
             //if speed too low => no driving anymore
-            if(speed < MIN_SPEED){
+            if (speed < MIN_SPEED) {
 
                 //stop driving
                 mDriving = false;
@@ -103,7 +100,8 @@ public class SpeedPresenter implements SpeedContract.Presenter, OnLocationChange
                 mStopTS = System.currentTimeMillis();
 
                 //compute average speed
-                double averageSpeed = getAverageSpeed(mDistanceDriving);
+                double averageSpeed = Utils.getAverageSpeed(mStopTS - mStartTS,
+                        mDistanceDriving);
 
                 //update view speed
                 mSpeedView.displaySpeed(0);
@@ -115,7 +113,7 @@ public class SpeedPresenter implements SpeedContract.Presenter, OnLocationChange
                 mDistanceDriving = 0;
             }
             //if speed OK
-            else{
+            else {
                 //update view speed
                 mSpeedView.displaySpeed(speed);
             }
@@ -124,19 +122,8 @@ public class SpeedPresenter implements SpeedContract.Presenter, OnLocationChange
 
     @Override
     public void distanceChanged(double distance) {
-        if(mDriving)
-            mDistanceDriving+=distance;
+        if (mDriving)
+            mDistanceDriving += distance;
 
-    }
-
-    private double getAverageSpeed(double distance){
-        long drivingTime = mStopTS - mStartTS;
-        double average;
-        if (drivingTime <= 0){
-            average = 0.0;
-        } else {
-            average = (distance / (drivingTime / 1000.0)) * 3.6;
-        }
-        return average;
     }
 }

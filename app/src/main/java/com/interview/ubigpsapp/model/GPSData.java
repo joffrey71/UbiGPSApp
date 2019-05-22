@@ -10,7 +10,6 @@
 package com.interview.ubigpsapp.model;
 
 import android.location.Location;
-import android.util.Log;
 
 class GPSData {
     private double mLastDistance;

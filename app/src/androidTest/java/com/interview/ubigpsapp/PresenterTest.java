@@ -1,3 +1,7 @@
+/*
+ * Unit tests for the implementation of {@link SpeedPresenter}
+ */
+
 package com.interview.ubigpsapp;
 
 import com.interview.ubigpsapp.model.IGPSTracker;
@@ -11,11 +15,8 @@ import org.mockito.MockitoAnnotations;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-/**
- * Unit tests for the implementation of {@link SpeedPresenter}
- */
-public class PresenterTest {
 
+public class PresenterTest {
 
     @Mock
     private SpeedContract.View mView;
@@ -39,7 +40,7 @@ public class PresenterTest {
         //Presenter start
         mSpeedPresenter.start();
 
-        verify(mTracker, times(1)).startCapture(mView.getContext());
+        verify(mTracker, times(1)).startCapture();
     }
 
     @Test

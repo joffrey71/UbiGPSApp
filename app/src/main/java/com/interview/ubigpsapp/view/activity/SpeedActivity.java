@@ -11,7 +11,6 @@
 package com.interview.ubigpsapp.view.activity;
 
 import android.Manifest;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.app.ActivityCompat;
@@ -93,6 +92,7 @@ public class SpeedActivity
                     public void onPermissionRationaleShouldBeShown(
                             PermissionRequest permission,
                             PermissionToken token) {
+                        token.continuePermissionRequest();
                     }
                 }).check();
 
@@ -106,11 +106,6 @@ public class SpeedActivity
 
         //Stop presenter operations
         mPresenter.stop();
-    }
-
-    @Override
-    public Context getContext() {
-        return this;
     }
 
     @Override
