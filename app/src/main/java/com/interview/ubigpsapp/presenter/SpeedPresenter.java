@@ -8,8 +8,8 @@
 package com.interview.ubigpsapp.presenter;
 
 import android.support.annotation.NonNull;
+
 import com.interview.ubigpsapp.SpeedContract;
-import com.interview.ubigpsapp.model.GPSTrackerSingleton;
 import com.interview.ubigpsapp.model.IGPSTracker;
 import com.interview.ubigpsapp.model.OnLocationChangeListener;
 
@@ -48,7 +48,7 @@ public class SpeedPresenter implements SpeedContract.Presenter, OnLocationChange
     public void stop() {
         if(mStarted) {
             mStarted = false;
-            
+
             //stop GPS to capture
             mGPSTracker.stopCapture();
 
@@ -108,6 +108,9 @@ public class SpeedPresenter implements SpeedContract.Presenter, OnLocationChange
                 //update view speed
                 mSpeedView.displaySpeed(0);
                 mSpeedView.displaySpeedAverage(averageSpeed);
+
+                //reset capture
+                mGPSTracker.resetCapture();
             }
             //if speed OK
             else{

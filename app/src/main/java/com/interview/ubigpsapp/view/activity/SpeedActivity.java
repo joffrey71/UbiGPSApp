@@ -9,16 +9,18 @@
  */
 
 package com.interview.ubigpsapp.view.activity;
+
 import android.Manifest;
 import android.content.Context;
+import android.os.Bundle;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.style.RelativeSizeSpan;
 import android.view.View;
 import android.widget.TextView;
+
 import com.interview.ubigpsapp.R;
 import com.interview.ubigpsapp.SpeedContract;
 import com.interview.ubigpsapp.model.GPSTrackerSingleton;
