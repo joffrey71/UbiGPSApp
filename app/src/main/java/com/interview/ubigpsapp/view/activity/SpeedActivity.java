@@ -48,7 +48,10 @@ public class SpeedActivity
     @BindView(R.id.averageSpeed)
     TextView mAverageSpeed;
 
+    //Speed presenter
     private SpeedPresenter mPresenter;
+
+    //Bottom sheet behavior to display average speed
     BottomSheetBehavior mBottomSheetBehavior;
 
     @Override
@@ -70,17 +73,14 @@ public class SpeedActivity
     protected void onStart() {
         super.onStart();
 
-        //Start presenter operations
-        mPresenter.start();
-
-        //Hide BottomSheet
-        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-
+        //Ask permission
         Dexter.withActivity(this)
                 .withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
                 .withListener(new PermissionListener() {
                     @Override
                     public void onPermissionGranted(PermissionGrantedResponse response) {
+                        //Start presenter operations
+                        mPresenter.start();
                     }
 
                     @Override
@@ -93,6 +93,9 @@ public class SpeedActivity
                             PermissionToken token) {
                     }
                 }).check();
+
+        //Hide BottomSheet
+        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
     }
 
     @Override

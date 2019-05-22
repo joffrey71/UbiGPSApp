@@ -50,7 +50,6 @@ public class GPSTrackerSingleton implements IGPSTracker, LocationListener {
 
     //constructor
     private GPSTrackerSingleton() {
-
     }
 
     @Override

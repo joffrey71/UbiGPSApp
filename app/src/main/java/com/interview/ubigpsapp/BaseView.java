@@ -11,6 +11,5 @@ package com.interview.ubigpsapp;
 import android.content.Context;
 
 public interface BaseView<T> {
-
     Context getContext();
 }

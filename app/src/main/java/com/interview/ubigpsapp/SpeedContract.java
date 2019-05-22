@@ -11,7 +11,6 @@ public interface SpeedContract
 {
     interface View extends BaseView<Presenter>
     {
-
         void displaySpeed(double speed);
         void displaySpeedAverage(double speed);
     }
