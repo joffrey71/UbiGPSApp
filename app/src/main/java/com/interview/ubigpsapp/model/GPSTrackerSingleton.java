@@ -21,10 +21,9 @@ import android.support.v4.app.ActivityCompat;
 
 public class GPSTrackerSingleton implements IGPSTracker, LocationListener {
 
-    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 1; // 1 meters
-    private static final long MIN_TIME_BW_UPDATES = 500; // 0.5 seconds
+    private static final long MIN_TIME_BW_UPDATES = 250; // 0.5 seconds
 
-    //singleton instante
+    //singleton instance
     private static volatile GPSTrackerSingleton mInstance = null;
 
     //location change listener
@@ -65,7 +64,7 @@ public class GPSTrackerSingleton implements IGPSTracker, LocationListener {
             mLocationManager.requestLocationUpdates(
                     LocationManager.GPS_PROVIDER,
                     MIN_TIME_BW_UPDATES,
-                    MIN_DISTANCE_CHANGE_FOR_UPDATES,
+                    0,
                     this);
 
             if(mOnLocationChangeListener != null)
@@ -102,7 +101,7 @@ public class GPSTrackerSingleton implements IGPSTracker, LocationListener {
     @Override
     public double getDistance() {
         if(mGPSData != null)
-            return mGPSData.getDistance();
+            return mGPSData.getLastDistance();
         else
             return 0;
     }
@@ -134,8 +133,8 @@ public class GPSTrackerSingleton implements IGPSTracker, LocationListener {
     public void onLocationChanged(Location location) {
         if(mGPSData != null) {
             mGPSData.setLocation(location);
+            setDistance(mGPSData.getLastDistance());
             setSpeed(mGPSData.getSpeed());
-            setDistance(mGPSData.getDistance());
         }
     }
 

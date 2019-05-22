@@ -23,6 +23,7 @@ public class SpeedPresenter implements SpeedContract.Presenter, OnLocationChange
     private boolean mDriving = false;
     private long mStartTS;
     private long mStopTS;
+    private double mDistanceDriving = 0;
 
     private IGPSTracker mGPSTracker;
 
@@ -86,7 +87,6 @@ public class SpeedPresenter implements SpeedContract.Presenter, OnLocationChange
                 mStartTS = System.currentTimeMillis();
 
                 //update view speed
-                mSpeedView.displaySpeedAverage(0);
                 mSpeedView.displaySpeed(speed);
             }
         }
@@ -103,7 +103,7 @@ public class SpeedPresenter implements SpeedContract.Presenter, OnLocationChange
                 mStopTS = System.currentTimeMillis();
 
                 //compute average speed
-                double averageSpeed = getAverageSpeed(mGPSTracker.getDistance());
+                double averageSpeed = getAverageSpeed(mDistanceDriving);
 
                 //update view speed
                 mSpeedView.displaySpeed(0);
@@ -111,6 +111,8 @@ public class SpeedPresenter implements SpeedContract.Presenter, OnLocationChange
 
                 //reset capture
                 mGPSTracker.resetCapture();
+
+                mDistanceDriving = 0;
             }
             //if speed OK
             else{
@@ -122,6 +124,9 @@ public class SpeedPresenter implements SpeedContract.Presenter, OnLocationChange
 
     @Override
     public void distanceChanged(double distance) {
+        if(mDriving)
+            mDistanceDriving+=distance;
+
     }
 
     private double getAverageSpeed(double distance){

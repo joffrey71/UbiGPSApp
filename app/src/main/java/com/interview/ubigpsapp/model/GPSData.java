@@ -10,14 +10,15 @@
 package com.interview.ubigpsapp.model;
 
 import android.location.Location;
+import android.util.Log;
 
 class GPSData {
-    private double mDistanceM;
+    private double mLastDistance;
     private double mSpeed;
     private Location mLocation;
 
     GPSData() {
-        mDistanceM = 0;
+        mLastDistance = 0;
         mSpeed = 0;
         mLocation = null;
     }
@@ -25,17 +26,17 @@ class GPSData {
     //Set current location and update Speed / Distance
     void setLocation(Location loc){
         if(mLocation != null){
-            mDistanceM += mLocation.distanceTo(loc);
+            mLastDistance = mLocation.distanceTo(loc);
         }
         mLocation = loc;
         if(loc.hasSpeed())
-            mSpeed = loc.getSpeed();
+            mSpeed = loc.getSpeed() * 3.6;
     }
 
     //Return distance
-    double getDistance()
+    double getLastDistance()
     {
-        return mDistanceM;
+        return mLastDistance;
     }
 
     //Return current speed
