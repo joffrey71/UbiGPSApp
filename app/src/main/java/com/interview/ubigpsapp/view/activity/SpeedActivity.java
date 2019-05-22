@@ -21,6 +21,7 @@ import android.view.View;
 import android.widget.TextView;
 import com.interview.ubigpsapp.R;
 import com.interview.ubigpsapp.SpeedContract;
+import com.interview.ubigpsapp.model.GPSTrackerSingleton;
 import com.interview.ubigpsapp.presenter.SpeedPresenter;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
@@ -47,9 +48,8 @@ public class SpeedActivity
     @BindView(R.id.averageSpeed)
     TextView mAverageSpeed;
 
-    private SpeedPresenter mPresenter = new SpeedPresenter(this);
+    private SpeedPresenter mPresenter;
     BottomSheetBehavior mBottomSheetBehavior;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,29 +62,45 @@ public class SpeedActivity
         //Load BottomSheetBehavior from View
         mBottomSheetBehavior = BottomSheetBehavior.from(mAverageBSView);
 
+        //Instanciate presenter
+        mPresenter = new SpeedPresenter(this, GPSTrackerSingleton.getInstance());
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        //Start presenter operations
+        mPresenter.start();
+
         //Hide BottomSheet
         mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-
-        //Set current speed to 0 km/h
-        setCurrentSpeedTV(0);
 
         Dexter.withActivity(this)
                 .withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
                 .withListener(new PermissionListener() {
-                    @Override public void onPermissionGranted(PermissionGrantedResponse response)
-                    {
-                        //Start presenter operations
-                        mPresenter.start();
+                    @Override
+                    public void onPermissionGranted(PermissionGrantedResponse response) {
                     }
-                    @Override public void onPermissionDenied(PermissionDeniedResponse response)
-                    {
+
+                    @Override
+                    public void onPermissionDenied(PermissionDeniedResponse response) {
                     }
-                    @Override public void onPermissionRationaleShouldBeShown(
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(
                             PermissionRequest permission,
-                            PermissionToken token)
-                    {
+                            PermissionToken token) {
                     }
                 }).check();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        //Stop presenter operations
+        mPresenter.stop();
     }
 
     @Override
@@ -94,47 +110,42 @@ public class SpeedActivity
 
     @Override
     public void onPointerCaptureChanged(boolean hasCapture) {
-
     }
 
     //update current speed text view
-    private void setCurrentSpeedTV(double speed)
-    {
+    private void setCurrentSpeedTV(double speed) {
         String units = "km/h";
         SpannableString s = new SpannableString(String.format(Locale.FRANCE,
-                                                            "%.0f %s", speed, units));
+                "%.0f %s", speed, units));
         s.setSpan(new RelativeSizeSpan(0.25f),
-                                    s.length()-units.length()-1,
-                                    s.length(),
-                                    0);
+                s.length() - units.length() - 1,
+                s.length(),
+                0);
         mCurrentSpeedTV.setText(s);
     }
 
     //update average speed text view
-    private void setAverageSpeedTV(double speed)
-    {
+    private void setAverageSpeedTV(double speed) {
         String units = "km/h";
         SpannableString s = new SpannableString(String.format(Locale.FRANCE,
-                                                    "%.0f %s", speed, units));
+                "%.0f %s", speed, units));
         s.setSpan(new RelativeSizeSpan(0.25f),
-                                    s.length()-units.length()-1,
-                        s.length(), 0);
+                s.length() - units.length() - 1,
+                s.length(), 0);
         mAverageSpeed.setText(s);
     }
 
     @Override
     public void displaySpeed(double speed) {
         if (mBottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED ||
-            mBottomSheetBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED) {
+                mBottomSheetBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED) {
             mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-            setAverageSpeedTV(0);
         }
         setCurrentSpeedTV(speed);
     }
 
     @Override
     public void displaySpeedAverage(double speed) {
-        setCurrentSpeedTV(0);
         setAverageSpeedTV(speed);
         mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }

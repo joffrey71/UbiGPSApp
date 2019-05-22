@@ -1,67 +1,34 @@
 package com.interview.ubigpsapp.model;
 
-class GPSData {
-    private boolean mIsRunning;
-    private long mStartTS;
-    private long mStopTS;
-    private boolean mIsFirstTime;
+import android.location.Location;
 
+class GPSData {
     private double mDistanceM;
-    private double mCurSpeed;
+    private double mSpeed;
+    private Location mLocation;
 
     GPSData() {
-        mIsFirstTime = true;
-        mIsRunning = false;
         mDistanceM = 0;
-        mCurSpeed = 0;
-        mStartTS = 0;
-        mStopTS = 0;
+        mSpeed = 0;
+        mLocation = null;
     }
 
-    void addDistance(double distance){
-        mDistanceM += distance;
-    }
-
-    double getAverageSpeed(){
-        long drivingTime = mStopTS - mStartTS;
-        double average;
-        if (drivingTime <= 0){
-            average = 0.0;
-        } else {
-            average = (mDistanceM / (drivingTime / 1000.0)) * 3.6;
+    void setLocation(Location loc){
+        if(mLocation != null){
+            mDistanceM += mLocation.distanceTo(loc);
         }
-        return average;
+        mLocation = loc;
+        if(loc.hasSpeed())
+            mSpeed = loc.getSpeed();
     }
 
-    void setCurSpeed(double curSpeed) {
-        this.mCurSpeed = curSpeed;
+    double getDistance()
+    {
+        return mDistanceM;
     }
 
-    boolean isFirstTime() {
-        return mIsFirstTime;
+    double getSpeed() {
+        return mSpeed;
     }
 
-    void setFirstTime(boolean isFirstTime) {
-        this.mIsFirstTime = isFirstTime;
-    }
-
-    boolean isRunning() {
-        return mIsRunning;
-    }
-
-    void setRunning(boolean isRunning) {
-        this.mIsRunning = isRunning;
-    }
-
-    void setStopTS(long timeStopped) {
-        this.mStopTS += timeStopped;
-    }
-
-    double getCurSpeed() {
-        return mCurSpeed;
-    }
-
-    void setStartTS(long time) {
-        this.mStartTS = time;
-    }
 }

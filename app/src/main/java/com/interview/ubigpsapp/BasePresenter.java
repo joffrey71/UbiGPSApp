@@ -10,4 +10,5 @@ package com.interview.ubigpsapp;
 public interface BasePresenter {
 
     void start();
+    void stop();
 }

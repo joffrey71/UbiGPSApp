@@ -8,7 +8,10 @@
 package com.interview.ubigpsapp.model;
 
 public interface OnLocationChangeListener {
-    void speedChanged(double speed);
-    void stoppedDrive(double speedAverage);
+    void startCapturing();
 
+    void stopCapturing();
+
+    void speedChanged(double speed);
+    void distanceChanged(double distance);
 }

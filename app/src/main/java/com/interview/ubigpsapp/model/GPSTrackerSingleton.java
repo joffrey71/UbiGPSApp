@@ -19,11 +19,10 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 
-public class GPSTrackerSingleton implements LocationListener{
+public class GPSTrackerSingleton implements IGPSTracker, LocationListener {
 
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 1; // 1 meters
     private static final long MIN_TIME_BW_UPDATES = 500; // 0.5 seconds
-    private static final long MIN_SPEED = 5; // 5 km/h => to avoid non accurate speed
 
     //singleton instante
     private static volatile GPSTrackerSingleton mInstance = null;
@@ -34,8 +33,8 @@ public class GPSTrackerSingleton implements LocationListener{
     //GPS data model storer
     private GPSData mGPSData = new GPSData();
 
-    //last GPS location
-    private Location mLastlocation = new Location("last");
+    //location manager
+    private LocationManager mLocationManager = null;
 
     //singleton access
     public static GPSTrackerSingleton getInstance() {
@@ -54,100 +53,90 @@ public class GPSTrackerSingleton implements LocationListener{
 
     }
 
+    @Override
     //start capture location
-    public void startCaptureLocation(Context context)
-    {
+    public void startCapture(Context context) {
         //check permissions first
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)
-                        == PackageManager.PERMISSION_GRANTED)
-        {
+                        == PackageManager.PERMISSION_GRANTED) {
             //request location update
-            LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-            locationManager.requestLocationUpdates(
+            mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+            mLocationManager.requestLocationUpdates(
                     LocationManager.GPS_PROVIDER,
                     MIN_TIME_BW_UPDATES,
                     MIN_DISTANCE_CHANGE_FOR_UPDATES,
                     this);
+
+            if(mOnLocationChangeListener != null)
+                mOnLocationChangeListener.startCapturing();
         }
     }
 
     //set callback
-    public void setLocationCapturerListener(OnLocationChangeListener onLocationChangeListener) {
-        this.mOnLocationChangeListener = onLocationChangeListener;
+    public void registerListener(OnLocationChangeListener onLocationChangeListener) {
+        mOnLocationChangeListener = onLocationChangeListener;
+    }
+
+    @Override
+    public void unregisterListener(OnLocationChangeListener onLocationChangeListener) {
+        if(onLocationChangeListener == mOnLocationChangeListener)
+            mOnLocationChangeListener = null;
+
+    }
+
+    @Override
+    public void setSpeed(double speed) {
+        if(mOnLocationChangeListener != null) {
+            mOnLocationChangeListener.speedChanged(speed);
+        }
+    }
+
+    @Override
+    public void setDistance(double distance) {
+        if(mOnLocationChangeListener != null) {
+            mOnLocationChangeListener.distanceChanged(distance);
+        }
+    }
+
+    @Override
+    public double getDistance() {
+        if(mGPSData != null)
+            return mGPSData.getDistance();
+        else
+            return 0;
+    }
+
+    @Override
+    public double getSpeed() {
+        if(mGPSData != null)
+            return mGPSData.getSpeed();
+        else
+            return 0;
+    }
+
+    @Override
+    public void stopCapture() {
+        if (mLocationManager != null) {
+            mLocationManager.removeUpdates(this);
+        }
+
+        if(mOnLocationChangeListener != null)
+            mOnLocationChangeListener.stopCapturing();
+    }
+
+    @Override
+    public void resetCapture() {
+        mGPSData = new GPSData();
     }
 
     @Override
     public void onLocationChanged(Location location) {
-        // m/s => km/h
-        float speedInKmH = location.getSpeed() * 3.6f;
-
-        //Check if driving
-        if(!mGPSData.isRunning()) {
-            //Check if speed > threshold
-            if (speedInKmH >= MIN_SPEED) {
-                mGPSData.setRunning(true);
-
-                //Check if first time location changed
-                if(mGPSData.isFirstTime())
-                {
-                    //set lastlocation
-                    mLastlocation.set(location);
-                    mGPSData.setFirstTime(false);
-
-                    //save start timestamp
-                    mGPSData.setStartTS(System.currentTimeMillis());
-                }
-                else
-                {
-                    //compute distance from last location
-                    double distance = mLastlocation.distanceTo(location);
-
-                    //update distance
-                    mGPSData.addDistance(distance);
-                    mLastlocation.set(location);
-                }
-
-                //update current speed
-                mGPSData.setCurSpeed(speedInKmH);
-                if (mOnLocationChangeListener != null) {
-                    //callback
-                    mOnLocationChangeListener.speedChanged(mGPSData.getCurSpeed());
-                }
-
-            }
-        }
-        //if driving
-        else {
-
-            //add distance
-            double distance = mLastlocation.distanceTo(location);
-            mGPSData.addDistance(distance);
-            mLastlocation.set(location);
-
-            //if speed too low => no driving anymore
-            if (speedInKmH < MIN_SPEED) {
-                //set stopped timestamps
-                mGPSData.setStopTS(System.currentTimeMillis());
-                if (mOnLocationChangeListener != null) {
-                    //callback average speed
-                    mOnLocationChangeListener.stoppedDrive(mGPSData.getAverageSpeed());
-                }
-
-                //reset data model
-                mGPSData = new GPSData();
-            }
-            //if speed OK
-            else{
-                //update current speed
-                mGPSData.setCurSpeed(speedInKmH);
-
-                if (mOnLocationChangeListener != null) {
-                    //callback current speed
-                    mOnLocationChangeListener.speedChanged(mGPSData.getCurSpeed());
-                }
-            }
+        if(mGPSData != null) {
+            mGPSData.setLocation(location);
+            setSpeed(mGPSData.getSpeed());
+            setDistance(mGPSData.getDistance());
         }
     }
 
